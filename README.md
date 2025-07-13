@@ -8,10 +8,12 @@ graph TD
   A[GitHub Push] --> B[GitHub Actions]
   B --> C[Unit Tests & Lint]
   C --> D[Docker Build & Push to GHCR]
-  D --> E[Render.com (Auto-Deploy)]
+  D --> E[Render.com]
   E --> F[FastAPI WebSocket /ws]
 ```
 
 ### Usage
+```python
 # Start Python client to stream webcam:
 python client.py --ws-url ws://<your-domain>/ws
+```
