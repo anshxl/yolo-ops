@@ -1,3 +1,5 @@
+# client.py
+
 import argparse
 import asyncio
 import base64
@@ -10,16 +12,25 @@ import numpy as np
 import websockets
 from websockets.exceptions import ConnectionClosedError, InvalidURI
 
-# ─── Logging Setup ─────────────────────────────────────────────────────────────
 logger = logging.getLogger("yolo-client")
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(message)s",
+)
+
 
 async def send_and_receive(ws_url: str, camera_index: int):
+    """
+    Connect to ws_url, capture frames from camera_index,
+    send each as base64-JPEG JSON, receive annotated frames,
+    and display them in an OpenCV window.
+    """
     while True:
         try:
             async with websockets.connect(ws_url) as ws:
                 logger.info(f"Connected to {ws_url}")
                 cap = cv2.VideoCapture(camera_index)
+
                 if not cap.isOpened():
                     logger.error(f"Cannot open camera #{camera_index}")
                     return
@@ -30,12 +41,10 @@ async def send_and_receive(ws_url: str, camera_index: int):
                         logger.error("Failed to grab frame")
                         break
 
-                    # Encode and send
                     _, buf = cv2.imencode(".jpg", frame)
                     b64 = base64.b64encode(buf).decode("utf-8")
                     await ws.send(json.dumps({"frame": b64}))
 
-                    # Receive and display
                     msg = await ws.recv()
                     data = json.loads(msg)
                     ann_bytes = base64.b64decode(data["annotated_frame"])
@@ -49,17 +58,22 @@ async def send_and_receive(ws_url: str, camera_index: int):
                         return
 
         except (ConnectionClosedError, InvalidURI) as e:
-            logger.error(f"Connection error: {e}. Retrying in 5s…")
+            logger.error(f"Connection error: {e}. Retrying in 5s...")
             time.sleep(5)
+
         except KeyboardInterrupt:
             logger.info("Interrupted by user; exiting.")
             break
-        except Exception as e:
-            logger.error(f"Unexpected error: {e}")
+
+        except Exception as exc:
+            logger.error(f"Unexpected error: {exc}")
             break
 
+
 def main():
-    parser = argparse.ArgumentParser(description="YOLO WebSocket Client")
+    parser = argparse.ArgumentParser(
+        description="YOLO WebSocket Client"
+    )
     parser.add_argument(
         "--ws-url",
         type=str,
@@ -67,7 +81,10 @@ def main():
         help="WebSocket endpoint (e.g. ws://host:port/ws)",
     )
     parser.add_argument(
-        "--camera", type=int, default=0, help="OpenCV camera index (default: 0)"
+        "--camera",
+        type=int,
+        default=0,
+        help="OpenCV camera index (default: 0)",
     )
     args = parser.parse_args()
 
@@ -75,6 +92,7 @@ def main():
         asyncio.run(send_and_receive(args.ws_url, args.camera))
     except KeyboardInterrupt:
         logger.info("Client stopped")
+
 
 if __name__ == "__main__":
     main()
