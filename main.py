@@ -27,6 +27,11 @@ def annotate_frame(img: np.ndarray) -> np.ndarray:
     return results.plot()
 
 
+@app.get("/")
+async def root():
+    return {"status": "live"}
+
+
 @app.get("/healthz")
 async def healthz():
     """
