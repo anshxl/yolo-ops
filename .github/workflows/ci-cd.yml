@@ -1,14 +1,22 @@
 name: CI/CD Pipeline
 
+# ─── Grant GITHUB_TOKEN the rights to push to GHCR ─────────────────────────────
+permissions:
+  contents: read    # for checkout, tests, etc.
+  packages: write   # for docker push to ghcr.io
+
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -31,11 +39,13 @@ jobs:
       - name: Build & push Docker image
         env:
           REGISTRY: ghcr.io
-          IMAGE: ${{ github.repository_owner }}/${{ github.repository }}
+          # github.repository is "owner/repo"
+          IMAGE: ${{ github.repository }}
         run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login $REGISTRY -u ${{ github.actor }} --password-stdin
-          docker build . -t $REGISTRY/$IMAGE:latest
-          docker push $REGISTRY/$IMAGE:latest
+          echo "${{ secrets.GITHUB_TOKEN }}" \
+            | docker login $REGISTRY -u ${{ github.actor }} --password-stdin
+          docker build . -t $REGISTRY/${IMAGE}:latest
+          docker push $REGISTRY/${IMAGE}:latest
 
       - name: Trigger Render.com Deploy
         env:
