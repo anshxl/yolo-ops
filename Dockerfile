@@ -18,4 +18,8 @@ COPY . .
 # Tell Docker (and Render) that the container listens on $PORT
 EXPOSE 80
 
-ENTRYPOINT ["sh","-c","uvicorn main:app --host 0.0.0.0 --port ${PORT:-80}"]
+# Exec form, but launches a shell so $PORT is expanded
+ENTRYPOINT [
+  "sh", "-c",
+  "exec uvicorn main:app --host 0.0.0.0 --port ${PORT:-80}"
+]
