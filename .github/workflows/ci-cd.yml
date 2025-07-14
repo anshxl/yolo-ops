@@ -1,9 +1,8 @@
 name: CI/CD Pipeline
 
-# ─── Grant GITHUB_TOKEN the rights to push to GHCR ─────────────────────────────
 permissions:
-  contents: read    # for checkout, tests, etc.
-  packages: write   # for docker push to ghcr.io
+  contents: read
+  packages: write
 
 on:
   push:
@@ -39,7 +38,6 @@ jobs:
       - name: Build & push Docker image
         env:
           REGISTRY: ghcr.io
-          # github.repository is "owner/repo"
           IMAGE: ${{ github.repository }}
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" \
@@ -47,12 +45,8 @@ jobs:
           docker build . -t $REGISTRY/${IMAGE}:latest
           docker push $REGISTRY/${IMAGE}:latest
 
-      - name: Trigger Render.com Deploy
+      - name: Trigger Render Deploy via Hook
         env:
-          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
-          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
         run: |
-          curl -X POST \
-            -H "Authorization: Bearer $RENDER_API_KEY" \
-            -H "Accept: application/json" \
-            https://api.render.com/deploy/srv-${{ env.RENDER_SERVICE_ID }}
+          curl -X POST "$DEPLOY_HOOK"
