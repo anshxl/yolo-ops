@@ -3,7 +3,6 @@
 import base64
 import cv2
 import numpy as np
-import pytest
 from fastapi.testclient import TestClient
 
 from main import app, annotate_frame
