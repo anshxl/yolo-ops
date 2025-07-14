@@ -15,5 +15,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Expose port and launch the FastAPI app
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
+# Tell Docker (and Render) that the container listens on $PORT
+EXPOSE 80
+
+# shell form will expand $PORT
+CMD uvicorn main:app --host 0.0.0.0 --port ${PORT:-80}
