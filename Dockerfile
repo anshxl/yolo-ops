@@ -19,7 +19,4 @@ COPY . .
 EXPOSE 80
 
 # Exec form, but launches a shell so $PORT is expanded
-ENTRYPOINT [
-  "sh", "-c",
-  "exec uvicorn main:app --host 0.0.0.0 --port ${PORT:-80}"
-]
+ENTRYPOINT ["sh","-c","exec uvicorn main:app --host 0.0.0.0 --port ${PORT:-80}"]
