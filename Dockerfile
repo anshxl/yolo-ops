@@ -12,6 +12,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# export to onnx runtime
+RUN yolo export model=yolov8n.pt format=onnx
 # Copy application code
 COPY . .
 

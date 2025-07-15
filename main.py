@@ -11,7 +11,7 @@ from ultralytics import YOLO
 
 logger = logging.getLogger("uvicorn.error")
 
-MODEL_PATH = os.getenv("MODEL_PATH", "yolov8n.pt")
+MODEL_PATH = os.getenv("MODEL_PATH", "yolov8n.onnx")
 CONF_THRESH = float(os.getenv("CONF_THRESH", 0.25))
 
 app = FastAPI()
@@ -21,9 +21,10 @@ model = YOLO(MODEL_PATH)
 def annotate_frame(img: np.ndarray) -> np.ndarray:
     """
     Run YOLO inference on an OpenCV image and return
-    an annotated image.
+    an annotated image. Resize to 320x320.
     """
-    results = model(img, conf=CONF_THRESH)[0]
+    small = cv2.resize(img, (320, 320))
+    results = model(small, conf=CONF_THRESH)[0]
     return results.plot()
 
 
