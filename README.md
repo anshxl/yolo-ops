@@ -14,7 +14,7 @@ This project demonstrates how to productionize a YOLOv8n inference service using
     Speed: 496 ms preprocess, 1100 ms inference, 504 ms postprocess
   0: 320×320 1 person, 803 ms
     Speed: 699 ms preprocess, 803 ms inference, 500 ms postprocess
-````
+```
 
 \~1–2 frames/sec on a free-tier CPU-only container
 
