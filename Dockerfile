@@ -13,7 +13,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # export to onnx runtime
-RUN yolo export model=yolov8n.pt format=onnx
+RUN yolo export model=yolov8n.pt format=onnx half=True
 # Copy application code
 COPY . .
 
