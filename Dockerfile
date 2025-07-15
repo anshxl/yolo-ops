@@ -13,7 +13,18 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # export to onnx runtime
-RUN yolo export model=yolov8n.pt format=onnx half=True
+RUN yolo export model=yolov8n.pt format=onnx
+
+# quantize to INT8 dynamically
+RUN python - <<EOF
+from onnxruntime.quantization import quantize_dynamic, QuantType
+quantize_dynamic(
+    model_input="yolov8n.onnx",
+    model_output="yolov8n_int8.onnx",
+    weight_type=QuantType.QInt8
+)
+EOF
+
 # Copy application code
 COPY . .
 

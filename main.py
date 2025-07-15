@@ -11,7 +11,7 @@ from ultralytics import YOLO
 
 logger = logging.getLogger("uvicorn.error")
 
-MODEL_PATH = os.getenv("MODEL_PATH", "yolov8n.onnx")
+MODEL_PATH = os.getenv("MODEL_PATH", "yolov8n_int8.onnx")
 CONF_THRESH = float(os.getenv("CONF_THRESH", 0.25))
 
 app = FastAPI()
@@ -24,7 +24,7 @@ def annotate_frame(img: np.ndarray) -> np.ndarray:
     an annotated image. Resize to 320x320.
     """
     small = cv2.resize(img, (320, 320))
-    results = model(small, conf=CONF_THRESH)[0]
+    results = model(small, conf=CONF_THRESH, imgsz=320)[0]
     return results.plot()
 
 
