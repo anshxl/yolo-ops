@@ -30,6 +30,8 @@ async def send_and_receive(ws_url: str, camera_index: int):
             async with websockets.connect(ws_url) as ws:
                 logger.info(f"Connected to {ws_url}")
                 cap = cv2.VideoCapture(camera_index)
+                # create window for displaying annotated frames
+                cv2.namedWindow("YOLO Annotated", cv2.WINDOW_NORMAL)
 
                 if not cap.isOpened():
                     logger.error(f"Cannot open camera #{camera_index}")
@@ -51,7 +53,11 @@ async def send_and_receive(ws_url: str, camera_index: int):
                     nparr = np.frombuffer(ann_bytes, np.uint8)
                     annotated = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
+                    logger.debug("about to show frame")
                     cv2.imshow("YOLO Annotated", annotated)
+                    logger.debug("called imshow(), waiting for key press")
+
+                    # key handling
                     if cv2.waitKey(1) & 0xFF == ord("q"):
                         cap.release()
                         cv2.destroyAllWindows()
