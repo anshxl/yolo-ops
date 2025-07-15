@@ -42,7 +42,7 @@ async def send_and_receive(ws_url: str, camera_index: int):
                     if not ret:
                         logger.error("Failed to grab frame")
                         break
-                    
+
                     # resize frame to 320x320
                     frame = cv2.resize(frame, (320, 320))
                     _, buf = cv2.imencode(".jpg", frame)
